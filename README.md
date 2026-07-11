@@ -1,118 +1,72 @@
-# SIEM Digital Twin — Beginner Project
+# SIEM Digital Twin
 
-A small, self-contained cybersecurity learning project that demonstrates how a Security Information and Event Management (SIEM) system and a digital twin can work together.
+An educational cybersecurity project that simulates a malware incident, detects suspicious activity with a simple SIEM, predicts possible attack spread, and displays the results in an interactive dashboard.
 
-The project creates a fictional company network, generates normal and malicious security logs, detects an attack chain, estimates where the attack could spread next, and suggests the most important response actions.
+> This project uses fictional data only. It is a learning simulation, not a production SIEM.
 
-> This is an educational simulation. It does not monitor a real network or provide production-grade security protection.
+## Features
 
-## What it does
+- Builds a simulated company network with workstations, a firewall, web server, domain controller, and database.
+- Generates 150 normal security events and 8 events that form a hidden malware attack.
+- Detects suspicious activity with explainable, rule-based alerts.
+- Correlates related alerts into an attack chain.
+- Runs Monte Carlo simulations to estimate where an infection could spread.
+- Ranks systems by business impact and recommends response actions.
+- Generates a standalone browser dashboard with searchable logs and risk predictions.
 
-The project models a simulated malware incident:
-
-1. A user opens a malicious email attachment on a workstation.
-2. The malware contacts an outside command-and-control server.
-3. It moves to another workstation over SMB file sharing.
-4. It steals credentials from memory.
-5. It uses those credentials to access the domain controller.
-6. It reaches the database server and transfers data out of the network.
-
-The SIEM component finds the suspicious events in a larger collection of normal logs. The digital-twin component then simulates many possible infection paths through the network and ranks systems by likely business impact.
-
-## Architecture
+## How it works
 
 ```text
 Network topology
-      │
-      ▼
-Generate normal logs + hidden attack
-      │
-      ▼
-Rule-based SIEM detection and event correlation
-      │
-      ▼
-Digital-twin spread simulation
-      │
-      ▼
-Risk-based response recommendations and dashboard
+    -> Generate normal logs and attack events
+    -> Detect and correlate suspicious events
+    -> Simulate possible attack spread
+    -> Rank risk and recommend actions
+    -> Display results in a dashboard
 ```
 
-## Technologies used
+## Simulated attack
 
-| Technology | Why it is used |
+The demo attack follows this sequence:
+
+1. A user opens a malicious email attachment on `WS1`.
+2. Malware makes an outbound command-and-control connection.
+3. It moves to `WS2` through SMB file sharing.
+4. It steals credentials from LSASS memory.
+5. The stolen credentials are used against the domain controller (`DC1`).
+6. The attacker reaches the database (`DB1`) and transfers data outside the network.
+
+## Tech stack
+
+| Technology | Use |
 |---|---|
-| Python 3 | Main programming language for simulation, detection, and analysis |
-| Python standard library | `csv`, `json`, `random`, `datetime`, `re`, and `subprocess`; no extra packages are required |
-| CSV | Stores generated logs, alerts, and prediction results in an easy-to-read format |
-| JSON | Stores the simulated network topology |
-| HTML, CSS, JavaScript | Creates a standalone interactive dashboard that opens in a browser |
-| Monte Carlo simulation | Repeats thousands of possible outbreaks to estimate infection probability |
+| Python 3 | Simulation, detection, prediction, and recommendations |
+| Python standard library | CSV, JSON, regular expressions, timestamps, and random simulation |
+| CSV and JSON | Input and output data storage |
+| HTML, CSS, JavaScript | Standalone interactive dashboard |
+| Monte Carlo simulation | Estimates infection probability across thousands of possible outbreaks |
 
-## Project files
+No third-party Python packages are required.
 
-| File | Purpose |
+## Project structure
+
+| File | Description |
 |---|---|
-| `network_topology.py` | Defines the seven simulated devices and their network connections |
-| `log_generator.py` | Creates 150 normal log events and 8 events representing a hidden attack |
-| `correlation_engine.py` | Scores suspicious events and links related events into attack chains |
-| `digital_twin.py` | Runs 5,000 simulated outbreaks and estimates which systems are at risk next |
-| `recommend.py` | Produces simple response recommendations for the highest-impact systems |
-| `build_dashboard.py` | Creates a standalone, searchable browser dashboard |
-| `run_all.py` | Runs the five main pipeline steps in the correct order |
+| `network_topology.py` | Defines the simulated devices and allowed connections. |
+| `log_generator.py` | Generates normal logs plus the hidden attack chain. |
+| `correlation_engine.py` | Scores suspicious events and correlates them into chains. |
+| `digital_twin.py` | Simulates attack spread and calculates impact scores. |
+| `recommend.py` | Suggests actions for the highest-risk systems. |
+| `build_dashboard.py` | Creates the standalone `dashboard.html` page. |
+| `run_all.py` | Runs the complete Python pipeline in order. |
 
-## Simulated network
-
-The fictional organisation contains:
-
-- `FW1` — edge firewall
-- `WEB1` — public-facing web server
-- `WS1`, `WS2`, `WS3` — employee workstations
-- `DC1` — domain controller
-- `DB1` — database server
-
-Each device has a role, IP address, criticality score, patch/vulnerability value, and network connections. The digital twin uses the connections and device scores to model possible attack movement.
-
-## How detection works
-
-The SIEM uses simple, explainable detection rules. It raises a score for signals such as:
-
-- double-extension filenames, for example `invoice.exe.scr`;
-- credential-dumping tools or LSASS memory access;
-- remote process creation and tools associated with lateral movement;
-- suspicious Kerberos authentication requests;
-- unusual interactive service-account use;
-- large outbound data transfers.
-
-Suspicious events are then correlated when they share a host and occur close together in time. This converts individual alerts into a readable attack story.
-
-## How the digital twin works
-
-The model starts from the first host identified in the strongest SIEM attack chain. For every simulation round, an infected system can attempt to infect its connected neighbours.
-
-The probability of infection is based on:
-
-- how easy the network route is assumed to be; and
-- the target system's configured vulnerability value.
-
-The model runs thousands of simulations, then calculates:
-
-- **Infection probability** — how often a system becomes infected;
-- **Average rounds to infection** — how quickly it is reached in successful simulations;
-- **Criticality** — the business importance of the system;
-- **Impact score** — `infection probability × criticality`.
-
-Systems are ranked by impact score, not merely by chance of infection. This prioritises high-value assets such as the domain controller and database.
-
-## Getting started
+## Run locally
 
 ### Requirements
 
 - Python 3.8 or later
-- No third-party Python packages
 
-### Run the complete analysis
-
-From this project folder:
+### Run the analysis
 
 ```bash
 python run_all.py
@@ -127,66 +81,48 @@ This creates:
 
 ### Build the dashboard
 
-After running the pipeline:
-
 ```bash
 python build_dashboard.py
 ```
 
-Open `dashboard.html` in a browser. It includes high-severity alert cards, a searchable log table, predicted spread rankings, and recommended actions.
+Open `dashboard.html` in a browser.
 
-### Run individual stages
+## Detection and risk model
 
-```bash
-python network_topology.py
-python log_generator.py
-python correlation_engine.py
-python digital_twin.py
-python recommend.py
-python build_dashboard.py
+The SIEM raises alerts for indicators such as suspicious double-extension filenames, credential dumping, remote process creation, suspicious Kerberos activity, unusual service-account use, and large outbound transfers.
+
+Related alerts are connected when they involve the same host and occur close together in time. The digital twin then simulates infection attempts across the network. Each system receives an impact score:
+
+```text
+impact score = infection probability x system criticality
 ```
 
-Run them in this order because each stage reads the file produced by the previous stage.
-
-## Output files
-
-| File | Contents |
-|---|---|
-| `topology.json` | Simulated systems and allowed network paths |
-| `siem_logs.csv` | 158 generated log records: 150 routine events and 8 attack events |
-| `alerts.csv` | Detected suspicious events, risk scores, and matching rules |
-| `predicted_spread.csv` | Infection probability, criticality, impact score, and evaluation label for each host |
-| `dashboard.html` | Standalone visual dashboard generated from the results |
+This gives priority to systems that are both likely to be affected and important to the organisation.
 
 ## Advantages
 
-- **Easy to understand:** the whole pipeline is small, readable, and uses only built-in Python modules.
-- **Explainable results:** every alert includes the rules that caused it to be flagged.
-- **Repeatable:** fixed random seeds make the demo results consistent between runs.
-- **End-to-end example:** shows the connection between raw security telemetry, detection, correlation, prediction, and response.
-- **No installation overhead:** no database, server, framework, or external Python dependency is needed.
-- **Visual output:** the generated dashboard makes it easy to explore logs and risk predictions.
+- Small, readable, beginner-friendly codebase.
+- Every alert includes the reason it was detected.
+- Reproducible results through fixed random seeds.
+- Demonstrates the full path from security telemetry to response prioritisation.
+- Works without a server, database, or external Python dependency.
 
 ## Limitations
 
-- **Not a real SIEM:** it does not ingest live Windows, firewall, cloud, EDR, or network logs.
-- **Synthetic data only:** attack events and normal traffic are intentionally simplified.
-- **Rule-based detection:** it uses fixed keywords and event types, so it cannot adapt to new attacker behaviour or learn a normal baseline.
-- **Simplified propagation model:** network routes and infection probabilities are manually assigned rather than measured from a real environment.
-- **No real-time response:** it cannot isolate devices, block IP addresses, reset accounts, or send alerts to analysts.
-- **No persistence or access control:** data is stored in local files and the dashboard has no authentication, user roles, or audit trail.
-- **Trusted-data dashboard:** the dashboard is suitable for this generated data. A production dashboard must safely escape untrusted log text before adding it to HTML.
-- **Patch-level naming:** the current model uses the configured `patch_level` directly as a vulnerability input. In a real model, patch state and vulnerability should be represented separately and carefully.
+- Does not collect or analyse real-time security logs.
+- Uses synthetic events and manually assigned network-risk values.
+- Detection rules are fixed and do not learn normal behaviour.
+- The spread model is intentionally simplified and should not be used for real security decisions.
+- The dashboard is static: visitors can explore results but cannot run the Python simulation online.
 
-## Possible next improvements
+## Future improvements
 
-- Ingest real or realistic security telemetry such as Sysmon, Windows Event Logs, firewall logs, or Zeek logs.
-- Store logs and alerts in a database such as Elasticsearch, OpenSearch, SQLite, or PostgreSQL.
-- Add MITRE ATT&CK technique mappings to detections.
-- Use threat-intelligence feeds and asset inventory data.
-- Separate vulnerability, patch compliance, exposure, and privilege into distinct risk factors.
-- Add alert thresholds, analyst workflow, authentication, and notification integrations.
-- Replace the simple simulation with a graph-based or data-driven risk model.
+- Add real log sources such as Sysmon, Windows Event Logs, firewall logs, or Zeek.
+- Store data in a database or SIEM platform.
+- Add MITRE ATT&CK mappings and threat-intelligence enrichment.
+- Separate patch status, vulnerability, exposure, and privilege into distinct risk factors.
+- Add a backend so visitors can run simulations with different scenarios.
 
-#   S i e m _ d i g i t a l _ t w i n  
- 
+## License
+
+Add a license file before publishing if you want to define how others can use this project.
