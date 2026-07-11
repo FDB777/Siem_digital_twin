@@ -122,7 +122,3 @@ This gives priority to systems that are both likely to be affected and important
 - Add MITRE ATT&CK mappings and threat-intelligence enrichment.
 - Separate patch status, vulnerability, exposure, and privilege into distinct risk factors.
 - Add a backend so visitors can run simulations with different scenarios.
-
-## License
-
-Add a license file before publishing if you want to define how others can use this project.
