@@ -1,0 +1,123 @@
+{
+  "nodes": [
+    {
+      "id": "FW1",
+      "hostname": "edge-firewall",
+      "role": "firewall",
+      "ip": "10.0.0.1",
+      "patch_level": 0.1,
+      "criticality": 0.6,
+      "exposed": true
+    },
+    {
+      "id": "WEB1",
+      "hostname": "dmz-web-01",
+      "role": "web_server",
+      "ip": "10.0.1.10",
+      "patch_level": 0.4,
+      "criticality": 0.5,
+      "exposed": true
+    },
+    {
+      "id": "WS1",
+      "hostname": "ws-finance-01",
+      "role": "workstation",
+      "ip": "10.0.2.11",
+      "patch_level": 0.6,
+      "criticality": 0.3,
+      "exposed": false
+    },
+    {
+      "id": "WS2",
+      "hostname": "ws-hr-02",
+      "role": "workstation",
+      "ip": "10.0.2.12",
+      "patch_level": 0.5,
+      "criticality": 0.3,
+      "exposed": false
+    },
+    {
+      "id": "WS3",
+      "hostname": "ws-eng-03",
+      "role": "workstation",
+      "ip": "10.0.2.13",
+      "patch_level": 0.2,
+      "criticality": 0.3,
+      "exposed": false
+    },
+    {
+      "id": "DC1",
+      "hostname": "domain-controller",
+      "role": "domain_controller",
+      "ip": "10.0.3.5",
+      "patch_level": 0.3,
+      "criticality": 0.95,
+      "exposed": false
+    },
+    {
+      "id": "DB1",
+      "hostname": "db-primary",
+      "role": "database",
+      "ip": "10.0.3.20",
+      "patch_level": 0.2,
+      "criticality": 1.0,
+      "exposed": false
+    }
+  ],
+  "edges": [
+    [
+      "FW1",
+      "WEB1",
+      0.7,
+      "inbound_http"
+    ],
+    [
+      "WEB1",
+      "DC1",
+      0.3,
+      "ldap_auth"
+    ],
+    [
+      "WS1",
+      "WS2",
+      0.6,
+      "smb_shared_folder"
+    ],
+    [
+      "WS1",
+      "DC1",
+      0.5,
+      "domain_auth"
+    ],
+    [
+      "WS2",
+      "DC1",
+      0.5,
+      "domain_auth"
+    ],
+    [
+      "WS3",
+      "DC1",
+      0.5,
+      "domain_auth"
+    ],
+    [
+      "WS2",
+      "WS3",
+      0.4,
+      "smb_shared_folder"
+    ],
+    [
+      "DC1",
+      "DB1",
+      0.6,
+      "service_account"
+    ],
+    [
+      "FW1",
+      "WS1",
+      0.15,
+      "vpn_remote_access"
+    ]
+  ]
+}
