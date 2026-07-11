@@ -4,6 +4,10 @@ An educational cybersecurity project that simulates a malware incident, detects 
 
 > This project uses fictional data only. It is a learning simulation, not a production SIEM.
 
+## Live demo
+
+[Open the SIEM Digital Twin dashboard](https://siem-digital-twin.vercel.app/dashboard.html)
+
 ## Features
 
 - Builds a simulated company network with workstations, a firewall, web server, domain controller, and database.
